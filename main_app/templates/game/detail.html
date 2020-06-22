@@ -4,4 +4,18 @@
 
 <h1>GAME DETAILS</h1>
 
+
+<h1>Game time!</h1>
+<div id='map' style='width: 400px; height: 300px;'></div>
+<script>
+mapboxgl.accessToken = '';
+var map = new mapboxgl.Map({
+container: 'map',
+style: 'mapbox://styles/mapbox/streets-v11',
+  center: [-104.9847, 39.73915],
+  zoom: 9
+// style: 'mapbox://styles/mapbox/streets-v11'
+});
+</script>
+
 {% endblock %}
