@@ -40,11 +40,12 @@ def game_detail(request, game_id):
     'game': game_from_db
   })
 
-def game_map(request):
-    mapbox_access_token = 'pk.eyJ1IjoidGF3bHVyIiwiYSI6ImNrYmp5MmZlaTA3YXEyc2x4dGZua2EyeHEifQ.gHRUEAc8Bs48FURFPwxvZg'
-    return render(request, 'map.html', { 'mapbox_access_token': mapbox_access_token })
+# def game_map(request):
+#     mapbox_access_token = ''
+#     return render(request, 'map.html', { 'mapbox_access_token': mapbox_access_token })
 
-# def game_map(request, game_id):
-#     return redirect('game_detail', game_id=game_id)
-
+def game_map(request, game_id):
+    context = {'mapbox_access_token': ''}
+    
+    return redirect('game_detail', context, game_id=game_id)
 # ------------------------PHOTOS---------------------------- #
