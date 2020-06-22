@@ -5,3 +5,4 @@ game index - list of games (order query set by whether or not you're a part of t
 game detail view - photo, a map, upload photo form
 
 Next, we'll make an about page. 
+Then we'll create comments.
