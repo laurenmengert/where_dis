@@ -28,7 +28,7 @@ def signup(request):
     if form.is_valid():
       user = form.save()
       login(request, user)
-      return redirect('home')
+      return redirect('game_list')
     else:
       error_message = 'Something went wrong! :( Give it another shot'
   form = UserCreationForm()
