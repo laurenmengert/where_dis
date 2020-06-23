@@ -23,6 +23,7 @@
                 <ul class="right">
                     {% comment %} <li><a href="{% url 'about' %}">About</a></li> {% endcomment %}
                     {% if user.is_authenticated %}
+                        <li><a href="{% url 'game_list' %}">All Games</a></li>
                         <li><a href="{% url 'logout' %}">Log Out</a></li>
                     {% else %}
                         <li><a href="{% url 'signup' %}">Sign Up</a></li>

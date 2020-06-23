@@ -120,6 +120,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/games/'
 # need to update to direct to list of games
 LOGOUT_REDIRECT_URL = '/'

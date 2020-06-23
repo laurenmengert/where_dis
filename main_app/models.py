@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from exiffield.fields import ExifField
+from GPSPhoto import gpsphoto
 import datetime
 
 # Create your models here.
@@ -33,7 +35,6 @@ class Photo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)    # MAY WANT TO RECONSIDER CASCADE HERE. CAN USERS BE DELETED?
     # lat = models.DecimalField()
     # lng = models.DecimalField()
-    
     
     def __str__(self):
         return f'Photo for game_id: {self.game_instance.id} user {self.user_id} @{self.url}'

@@ -2,10 +2,8 @@
 {% block content %}
 
 
-<h1>GAME DETAILS</h1>
+<h1>{{ game.name }} Details</h1>
 
-
-<h1>Game time!</h1>
 <div id='map' style='width: 400px; height: 300px;'></div>
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoidGF3bHVyIiwiYSI6ImNrYmp5MmZlaTA3YXEyc2x4dGZua2EyeHEifQ.gHRUEAc8Bs48FURFPwxvZg';
@@ -30,8 +28,5 @@ style: 'mapbox://styles/mapbox/streets-v11',
     <br>
     <input type="submit" class="btn" value="Upload Photo">
 </form>
-
-
-
 
 {% endblock %}
