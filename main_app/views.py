@@ -3,6 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import ListView
 from .models import GameInstance, Photo
+from GPSPhoto import gpsphoto
 import uuid
 import boto3
 
@@ -10,8 +11,11 @@ import boto3
 # ----------------------CONSTANTS-------------------------- #
 
 
-S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
-BUCKET = 'wheredis'
+# S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+# BUCKET = 'wheredis'
+
+S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
+BUCKET = 'catcollector'
 
 
 # -----------------------GENERAL--------------------------- #
@@ -67,8 +71,11 @@ def game_map(request, game_id):
 
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
-  print( request.user.id  )
+  
+  print(request.user.id)
   if photo_file:
+    photo_obj = gpsphoto.getGPSData('photo_file')
+    print('photo_obj:', photo_obj)
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     
