@@ -37,7 +37,7 @@ class Photo(models.Model):
     # lng = models.DecimalField()
     
     def __str__(self):
-        return f'Photo for game_id: {self.game_instance_id} user {self.user_id} @{self.url}'
+        return f'Photo for game_id: {self.game_instance.id} user {self.user_id} @{self.url}'
     
 
 # USER_INFO MODEL
