@@ -3,19 +3,18 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import ListView
 from .models import GameInstance, Photo
-from GPSPhoto import gpsphoto
 import uuid
 import boto3
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+import copy
 
 
 # ----------------------CONSTANTS-------------------------- #
 
 
-# S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
-# BUCKET = 'wheredis'
-
-S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
-BUCKET = 'catcollector'
+S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+BUCKET = 'laurens-cat-collector'
 
 
 # -----------------------GENERAL--------------------------- #
@@ -67,15 +66,39 @@ def game_map(request, game_id):
 
 
 # ------------------------PHOTOS---------------------------- #
+def get_decimal_coordinates(info):
+  for key in ['Latitude', 'Longitude']:
+      if 'GPS'+key in info and 'GPS'+key+'Ref' in info:
+          e = info['GPS'+key]
+          ref = info['GPS'+key+'Ref']
+          info[key] = ( e[0][0]/e[0][1] +
+                        e[1][0]/e[1][1] / 60 +
+                        e[2][0]/e[2][1] / 3600
+                      ) * (-1 if ref in ['S','W'] else 1)
 
+  if 'Latitude' in info and 'Longitude' in info:
+      return [info['Latitude'], info['Longitude']]
 
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
+  photo_copy = copy.deepcopy(photo_file)
+  exif = Image.open(photo_copy)._getexif()
+  print(exif is not None)
+  if exif is not None:
+      for key, value in exif.items():
+          name = TAGS.get(key, key)
+          exif[name] = exif.pop(key)
+
+      if 'GPSInfo' in exif:
+          for key in exif['GPSInfo'].keys():
+              name = GPSTAGS.get(key,key)
+              exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+              
+  print(exif, 'EXIFFFFFFFF')
+  decimals = get_decimal_coordinates(exif['GPSInfo'])
+  print(decimals)
   
-  print(request.user.id)
   if photo_file:
-    photo_obj = gpsphoto.getGPSData('photo_file')
-    print('photo_obj:', photo_obj)
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     
