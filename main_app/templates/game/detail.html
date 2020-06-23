@@ -18,4 +18,12 @@ style: 'mapbox://styles/mapbox/streets-v11',
 });
 </script>
 
+{% for photo in game.photo_set.all %}
+    <img class="responsive-img card-panel" src="{{photo.url}}">
+{% empty %}
+    <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+{% endfor %}
+
+
+
 {% endblock %}
