@@ -55,9 +55,10 @@ def game_detail(request, game_id):
 #     return render(request, 'map.html', { 'mapbox_access_token': mapbox_access_token })
 
 def game_map(request, game_id):
-    context = {'mapbox_access_token': ''}
-    
-    return redirect('game_detail', context, game_id=game_id)
+  # NEED TO PASS CENTER OF MAP DATA HERE
+  context = {'mapbox_access_token': ''}
+  
+  return redirect('game_detail', context, game_id=game_id)
 
 
 
