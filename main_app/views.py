@@ -2,10 +2,20 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import ListView
-from .models import GameInstance
+from .models import GameInstance, Photo
+import uuid
+import boto3
 
 
-# Create your views here.
+# ----------------------CONSTANTS-------------------------- #
+
+
+S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+BUCKET = 'wheredis'
+
+
+# -----------------------GENERAL--------------------------- #
+
 
 def home(request):
     return render(request, 'home.html')
@@ -48,4 +58,29 @@ def game_map(request, game_id):
     context = {'mapbox_access_token': ''}
     
     return redirect('game_detail', context, game_id=game_id)
+
+
+
 # ------------------------PHOTOS---------------------------- #
+
+
+def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
+  photo_file = request.FILES.get('photo-file', None)
+  print( request.user.id  )
+  if photo_file:
+    s3 = boto3.client('s3')
+    key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+    
+    try:
+      print('TRY step 1')
+      s3.upload_fileobj(photo_file, BUCKET, key)
+      print('TRY step 2')
+      url = f'{S3_BASE_URL}{BUCKET}/{key}'
+      print(f'TRY step 3 url = {url}')
+      photo = Photo(url=url, game_instance_id=game_id, user=request.user) # DOUBLE-CHECK HERE TOO
+      print(f'TRY step 4 photo = {photo}')
+      photo.save()
+      print('TRY step 5')
+    except:
+      print('There has been an error uploading to S3')
+  return redirect('game_detail', game_id=game_id)

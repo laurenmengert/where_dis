@@ -8,7 +8,7 @@
 <h1>Game time!</h1>
 <div id='map' style='width: 400px; height: 300px;'></div>
 <script>
-mapboxgl.accessToken = '';
+mapboxgl.accessToken = 'pk.eyJ1IjoidGF3bHVyIiwiYSI6ImNrYmp5MmZlaTA3YXEyc2x4dGZua2EyeHEifQ.gHRUEAc8Bs48FURFPwxvZg';
 var map = new mapboxgl.Map({
 container: 'map',
 style: 'mapbox://styles/mapbox/streets-v11',
@@ -17,5 +17,21 @@ style: 'mapbox://styles/mapbox/streets-v11',
 // style: 'mapbox://styles/mapbox/streets-v11'
 });
 </script>
+
+{% for photo in game.photo_set.all %}
+    <img class="responsive-img card-panel" src="{{photo.url}}">
+{% empty %}
+    <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+{% endfor %}
+
+<form action="{% url 'upload_photo' game.id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+    {% csrf_token %}
+    <input type="file" name="photo-file">
+    <br>
+    <input type="submit" class="btn" value="Upload Photo">
+</form>
+
+
+
 
 {% endblock %}

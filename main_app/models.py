@@ -10,7 +10,9 @@ class GameInstance(models.Model):
         auto_now_add=True,  # automatically sets to the time when the object is created
         )
     # WINNING LOCATION FROM METADATA FIELD
-    # USER_ID FOREIGN KEY FIELD
+    # PLAYERS FIELD MANY TO MANY 
+    # HOST FOREIGN KEY FOREIGN KEY
+    # WINNER FOREIGN KEY  NULL=TRUE
     # DIFFICULTY SETTING FIELD
     
     def __str__(self):
@@ -24,6 +26,17 @@ class GameInstance(models.Model):
     # GAME_INSTANCE_ID FOREIGN KEY FIELD
     # LOCATION METADATA FIELD
     # USER_ID FOREIGN KEY FIELD
+    
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    game_instance = models.ForeignKey(GameInstance, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)    # MAY WANT TO RECONSIDER CASCADE HERE. CAN USERS BE DELETED?
+    # lat = models.DecimalField()
+    # lng = models.DecimalField()
+    
+    
+    def __str__(self):
+        return f'Photo for game_id: {self.game_instance_id} user {self.user_id} @{self.url}'
     
 
 # USER_INFO MODEL
