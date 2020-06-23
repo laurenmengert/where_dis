@@ -25,6 +25,14 @@ class GameInstance(models.Model):
     # LOCATION METADATA FIELD
     # USER_ID FOREIGN KEY FIELD
     
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    game_instance = models.ForeignKey(GameInstance, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)    # MAY WANT TO RECONSIDER CASCADE HERE. CAN USERS BE DELETED?
+    
+    def __str__(self):
+        return f'Photo for game_id: {self.game_instance_id} user {self.user_id} @{self.url}'
+    
 
 # USER_INFO MODEL
     # USER_ID FOREIGN KEY FIELD
