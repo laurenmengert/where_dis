@@ -2,6 +2,10 @@
 
 <h1>{{ game.name }} Details</h1>
 
+<p>{{ game.details }}</p>
+
+<img class="responsive-img card-panel" src="{{ref_photo.url}}" />
+
 <!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.js'></script> -->
 <!-- below npmcd script is necessary source for circle to render  -->
 <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
@@ -13,12 +17,12 @@
   var map = new mapboxgl.Map({
     container: "map", // container id
     style: "mapbox://styles/mapbox/streets-v9", //stylesheet location
-    center: [-104.9847, 39.73915], // starting position of map
+    center: [{{ game.reference_lng }}, {{ game.reference_lat }}], // starting position of map
     zoom: 13, // starting zoom 3 = USA, 5 = CO, 12 = Downtown, 17 = 257 meters (one big city block), 18 = 130 meters.
   });
 
   map.on("load", function () {
-    var center = turf.point([-104.9847, 39.73915]);
+    var center = turf.point([{{ game.reference_lng }}, {{ game.reference_lat }}]);
     var radius = 0.5; // overall circle size .5 = 1k meters
     var options = {
       steps: 80, //The number of sides of the shape. 8 = octogon
@@ -59,6 +63,8 @@
   });
 </script>
 
+
+{% comment %} ELIMINATE REFERENCE PHOTO FROM THESE {% endcomment %}
 {% for photo in game.photo_set.all %}
 <img class="responsive-img card-panel" src="{{photo.url}}" />
 {% empty %}

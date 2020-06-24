@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+For this page: 
+1. Create new game using name field
+2. Do we want a description field for hints?
+3. Need to upload photo and grab lat and long
+4. Probably spit out error if no lat and long
+
+
+Notes:
+• Create game first, since Photo needs game as a reference key. 
+• Pull User from logged-in User
+• Winner = null
+• Upload image
+• set photo.is_reference = True
+• lat, long from image updates GameInstance model
+
+
+
+
+
+{% endblock %}
