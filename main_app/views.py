@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from django.urls import reverse
 from .models import GameInstance, Photo
+from decimal import Decimal
 import uuid
 import boto3
 from PIL import Image
@@ -114,33 +115,36 @@ def upload_ref_photo_function(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
   game = GameInstance.objects.get(id=game_id)
   
-  #--------------------------INSIDE IF---------------------------
-  photo_copy = copy.deepcopy(photo_file)
-  exif = Image.open(photo_copy)._getexif()
-  print(exif is not None)
-  if exif is not None:
-      for key, value in exif.items():
-          name = TAGS.get(key, key)
-          exif[name] = exif.pop(key)
-
-      if 'GPSInfo' in exif:
-          for key in exif['GPSInfo'].keys():
-              name = GPSTAGS.get(key,key)
-              exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
-              
-  print(exif, 'EXIFFFFFFFF')
-  decimals = get_decimal_coordinates(exif['GPSInfo'])
-  print(decimals)
-  
-  lat = decimals[0]
-  lng = decimals[1]
-  
-  game.reference_lat = lat
-  game.reference_lng = lng
-  game.save()
-  #-----------------------------INSIDE IF--------------------------
   
   if photo_file:
+    # COPIES PHOTO TO EXTRACT METADATA
+    # EXTRACTED PHOTO IS CORRUPTED
+    photo_copy = copy.deepcopy(photo_file)
+    exif = Image.open(photo_copy)._getexif()
+    print(exif is not None)
+    if exif is not None:
+        for key, value in exif.items():
+            name = TAGS.get(key, key)
+            exif[name] = exif.pop(key)
+
+        if 'GPSInfo' in exif:
+            for key in exif['GPSInfo'].keys():
+                name = GPSTAGS.get(key,key)
+                exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+                
+    print(exif, 'EXIFFFFFFFF')
+    decimals = get_decimal_coordinates(exif['GPSInfo'])
+    print(decimals)
+    
+    lat = decimals[0]
+    lng = decimals[1]
+    
+    # SETS WINNING POSITION OF GAME
+    game.reference_lat = lat
+    game.reference_lng = lng
+    game.save()
+    
+    # SAVES PHOTO TO S3, AND SAVES REFS TO SQL DB
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     
@@ -206,34 +210,44 @@ def upload_ref_photo_function(request, game_id):
 # # CREATE HELPER FUNCTION TO DELETE
 
 
+# THIS FUNCTION IS ONLY CALLED ON NON-REFERENCE PHOTOS FOR A GAME
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
   
-  #--------------------------INSIDE IF---------------------------
-  photo_copy = copy.deepcopy(photo_file)
-  exif = Image.open(photo_copy)._getexif()
-  print(exif is not None)
-  if exif is not None:
-      for key, value in exif.items():
-          name = TAGS.get(key, key)
-          exif[name] = exif.pop(key)
-
-      if 'GPSInfo' in exif:
-          for key in exif['GPSInfo'].keys():
-              name = GPSTAGS.get(key,key)
-              exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
-              
-  print(exif, 'EXIFFFFFFFF')
-  decimals = get_decimal_coordinates(exif['GPSInfo'])
-  print(decimals)
-  
-  lat = decimals[0]
-  lng = decimals[1]
-  #-----------------------------INSIDE IF--------------------------
   
   if photo_file:
+    # COPIES PHOTO TO EXTRACT METADATA
+    # EXTRACTED PHOTO IS CORRUPTED
+    photo_copy = copy.deepcopy(photo_file)
+    exif = Image.open(photo_copy)._getexif()
+    print(exif is not None)
+    if exif is not None:
+        for key, value in exif.items():
+            name = TAGS.get(key, key)
+            exif[name] = exif.pop(key)
+
+        if 'GPSInfo' in exif:
+            for key in exif['GPSInfo'].keys():
+                name = GPSTAGS.get(key,key)
+                exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+                
+    print(exif, 'EXIFFFFFFFF')
+    decimals = get_decimal_coordinates(exif['GPSInfo'])
+    print(decimals)
+    
+    lat = Decimal(decimals[0])
+    lng = Decimal(decimals[1])
+    
+    
+    
+    
+    
+    # SAVES PHOTO TO S3, AND SAVES REFS TO SQL DB
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+    game = GameInstance.objects.get(id=game_id)
+    print(game, '<================game')
+    print(game.winner, '<=================game.winner')
     
     try:
       print('TRY step 1')
@@ -243,7 +257,19 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
       # photo_obj = gpsphoto.getGPSData(f'{url}')
       # print('photo_obj:', photo_obj)
       print(f'TRY step 3 url = {url}')
+      print(request.user, '<===============request.user')
       photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng) # DOUBLE-CHECK HERE TOO
+      # WIN LOGIC
+      # 0.00001 is appx 1 meter, so 0.0004 is somewhere around 12 feet
+      # so this creates about a 24ft x 24ft box as a margin of error
+      print(type(lat), '<===============type(lat)')
+      print(type(game.reference_lat), '<===============type(game.reference_lat)')
+      print(abs(lat - game.reference_lat), '<============absolute difference lats ')
+      if (abs(lat - game.reference_lat) < 0.00004) and (abs(lng - game.reference_lng) < 0.00004):
+        # print(photo.user, '<=======================photo.user')
+        # DOES THIS UPDATE GAME_INSTANCE.WINNER PROPERLY??!!??!??
+        game.winner = request.user
+        game.save()
       print(f'TRY step 4 photo = {photo}')
       photo.save()
       print('TRY step 5')

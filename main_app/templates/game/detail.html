@@ -4,6 +4,8 @@
 
 <p>{{ game.details }}</p>
 
+{% comment %} IF THERE IS A MATCH, DISPLAY THAT THERE IS A WINNER. IF NOT, SAY SOMETHING LESS EXCITING {% endcomment %}
+
 <img class="responsive-img card-panel" src="{{ref_photo.url}}" />
 
 <!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.js'></script> -->
@@ -71,16 +73,24 @@
 <div class="card-panel teal-text center-align">No Photos Uploaded</div>
 {% endfor %}
 
-<form
-  action="{% url 'upload_photo' game.id %}"
-  enctype="multipart/form-data"
-  method="POST"
-  class="card-panel"
->
-  {% csrf_token %}
-  <input type="file" name="photo-file" />
-  <br />
-  <input type="submit" class="btn" value="Upload Photo" />
-</form>
+{% if game.winner %}
+    <p> {{ game.winner.username }} has already won this game </p>
+    <img src="https://media1.giphy.com/media/13hxeOYjoTWtK8/giphy-downsized.gif?cid=6104955eda73ecd0108160989ad10aba307aa11e78a8ba19&rid=giphy-downsized.gif"/>
+{% else %}
+    <form
+        action="{% url 'upload_photo' game.id %}"
+        enctype="multipart/form-data"
+        method="POST"
+        class="card-panel"
+    >
+        {% csrf_token %}
+        <input type="file" name="photo-file" />
+        <br />
+        <br />
+        <input type="submit" class="btn" value="Upload Photo" />
+    </form>
+    <p>Having trouble? Make sure your photos are in .jpg format and the
+    location is being saved!</p>
+{% endif %}
 
 {% endblock %}
