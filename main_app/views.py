@@ -3,14 +3,11 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import ListView
 from .models import GameInstance, Photo
-from GPSPhoto import gpsphoto
 import uuid
 import boto3
-import os, sys
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import copy
-import piexif
 
 
 # ----------------------CONSTANTS-------------------------- #
@@ -72,7 +69,18 @@ def game_map(request, game_id):
 
 
 # ------------------------PHOTOS---------------------------- #
+def get_decimal_coordinates(info):
+  for key in ['Latitude', 'Longitude']:
+      if 'GPS'+key in info and 'GPS'+key+'Ref' in info:
+          e = info['GPS'+key]
+          ref = info['GPS'+key+'Ref']
+          info[key] = ( e[0][0]/e[0][1] +
+                        e[1][0]/e[1][1] / 60 +
+                        e[2][0]/e[2][1] / 3600
+                      ) * (-1 if ref in ['S','W'] else 1)
 
+  if 'Latitude' in info and 'Longitude' in info:
+      return [info['Latitude'], info['Longitude']]
 
 def save_picture(form_picture):
     # this function has to do with the module Pillow
@@ -116,53 +124,30 @@ def save_picture(form_picture):
 
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
-  print( type(photo_file), 'photo_file type')
-  # print(request.user.id)
+  photo_copy = copy.deepcopy(photo_file)
+  exif = Image.open(photo_copy)._getexif()
+  print(exif is not None)
+  if exif is not None:
+      for key, value in exif.items():
+          name = TAGS.get(key, key)
+          exif[name] = exif.pop(key)
+
+      if 'GPSInfo' in exif:
+          for key in exif['GPSInfo'].keys():
+              name = GPSTAGS.get(key,key)
+              exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+              
+  print(exif, 'EXIFFFFFFFF')
+  decimals = get_decimal_coordinates(exif['GPSInfo'])
+  print(decimals)
+  
   if photo_file:
-    # photo_obj = gpsphoto.getGPSData('/Users/Shawn/code/where_dis/photo_file')
-    
-    # photo_file_copy = dict(photo_file)
-    photo_file_copy = copy.deepcopy(photo_file)
-    # img_path = save_picture(temp_photo)
-    
-    
-    img = Image.open(photo_file)
-    # img = img.load()
-    
-    # photo_obj = gpsphoto.getGPSData(img_path)
-    # print('photo_obj:', photo_obj)
-    
-    exif_data = img._getexif()
-    # gps_dict = {}
-    print(exif_data, '<=========exif_data')
-    
-    if exif_data is not None:
-      for key, value in exif_data.items():
-        name = TAGS.get(key, key)
-        exif_data[name] = exif_data.pop(key)
-        # print(name, '<=====name')
-      
-      if 'GPSInfo' in exif_data:
-        for key in exif_data['GPSInfo'].keys():
-          name = GPSTAGS.get(key,key)
-          exif_data['GPSInfo'][name] = exif_data['GPSInfo'].pop(key)
-    
-    # print( exif_data['GPSInfo'] )
-    print( exif_data, '<============exif_data' )
-    print( 'GPS Latitude: ', exif_data['GPSInfo']['GPSLatitude'])
-    print( 'GPS Longitude: ', exif_data['GPSInfo']['GPSLongitude'])
-    
-    
-    # print(dir(photo_file))
-    # photo_obj = gpsphoto.getGPSData(f'{sys.path.append(os.path.realpath("photo_file"))}')
-    # print( os.path.abspath("photo_file") )   # /Users/Shawn/code/where_dis/photo_file
-    # print('photo_obj:', photo_obj)
     s3 = boto3.client('s3')
-    key = uuid.uuid4().hex[:6] + photo_file_copy.name[photo_file_copy.name.rfind('.'):]
+    key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     
     try:
       print('TRY step 1')
-      s3.upload_fileobj(photo_file_copy, BUCKET, key)
+      s3.upload_fileobj(photo_file, BUCKET, key)
       print('TRY step 2')
       url = f'{S3_BASE_URL}{BUCKET}/{key}'
       # photo_obj = gpsphoto.getGPSData(f'{url}')
@@ -177,10 +162,3 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
     except:
       print('There has been an error uploading to S3')
   return redirect('game_detail', game_id=game_id)
-
-
-
-
-
-
-# 34853 in exifdata references a dictionary of coordinates
