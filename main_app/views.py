@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import ListView
+from django.views.generic.edit import CreateView
+from django.urls import reverse
 from .models import GameInstance, Photo
 import uuid
 import boto3
@@ -45,6 +47,20 @@ def signup(request):
 class GameList(ListView):
   model = GameInstance
   
+  
+class GameCreate(CreateView):
+  model = GameInstance
+  fields = ['name', 'details']
+  
+  def form_valid(self, form):
+    form.instance.host = self.request.user
+    return super().form_valid(form)
+  
+  def get_success_url(self):
+    print(self.object.id, '<====================================================self.object.id')
+    print(type(self.object.id), '<====================================================type(self.object.id)')
+    return reverse('game_ref_photo_form', kwargs={'game_id':self.object.id})
+  
 
 # THIS IS THE BIG FUNCTION
 # MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW 
@@ -82,6 +98,67 @@ def get_decimal_coordinates(info):
 
   if 'Latitude' in info and 'Longitude' in info:
       return [info['Latitude'], info['Longitude']]
+
+
+def game_ref_photo_form(request, game_id):
+  context = {'game_id':game_id}
+  return render(request, 'game/ref_photo_form.html', context)
+
+
+def upload_ref_photo_function(request, game_id):
+  photo_file = request.FILES.get('photo-file', None)
+  game = GameInstance.objects.get(id=game_id)
+  
+  #--------------------------INSIDE IF---------------------------
+  photo_copy = copy.deepcopy(photo_file)
+  exif = Image.open(photo_copy)._getexif()
+  print(exif is not None)
+  if exif is not None:
+      for key, value in exif.items():
+          name = TAGS.get(key, key)
+          exif[name] = exif.pop(key)
+
+      if 'GPSInfo' in exif:
+          for key in exif['GPSInfo'].keys():
+              name = GPSTAGS.get(key,key)
+              exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+              
+  print(exif, 'EXIFFFFFFFF')
+  decimals = get_decimal_coordinates(exif['GPSInfo'])
+  print(decimals)
+  
+  lat = decimals[0]
+  lng = decimals[1]
+  
+  game.reference_lat = lat
+  game.reference_lng = lng
+  game.save()
+  #-----------------------------INSIDE IF--------------------------
+  
+  if photo_file:
+    s3 = boto3.client('s3')
+    key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+    
+    try:
+      print('TRY step 1')
+      s3.upload_fileobj(photo_file, BUCKET, key)
+      print('TRY step 2')
+      url = f'{S3_BASE_URL}{BUCKET}/{key}'
+      # photo_obj = gpsphoto.getGPSData(f'{url}')
+      # print('photo_obj:', photo_obj)
+      print(f'TRY step 3 url = {url}')
+      photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng, is_reference=True) # DOUBLE-CHECK HERE TOO
+      print(f'TRY step 4 photo = {photo}')
+      photo.save()
+      print('TRY step 5')
+      # photo_obj = gpsphoto.getGPSData(f'{url}')
+      # print('photo_obj:', photo_obj)
+    except:
+      print('There has been an error uploading to S3')
+  return redirect('game_detail', game_id=game_id)
+
+
+
     
 
 # def save_picture(form_picture):

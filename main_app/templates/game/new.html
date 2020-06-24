@@ -2,16 +2,22 @@
 {% block content %}
 
 For this page: 
-1. Need to upload photo and grab lat and long
-2. Probably spit out error if no lat and long
-3. Create new game using name field
-4. Do we want a description field for hints?
+1. Create new game using name field
+2. Do we want a description field for hints?
+3. Need to upload photo and grab lat and long
+4. Probably spit out error if no lat and long
 
 
 Notes:
-• Pretty sure we'll need to create the photo first. Should we do that as a seperate view, then pass the image to the next view?
+• Create game first, since Photo needs game as a reference key. 
 • Pull User from logged-in User
 • Winner = null
-• lat, long from image
+• Upload image
+• set photo.is_reference = True
+• lat, long from image updates GameInstance model
+
+
+
+
 
 {% endblock %}

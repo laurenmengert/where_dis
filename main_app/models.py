@@ -8,6 +8,11 @@ import datetime
 # Create your models here.
 class GameInstance(models.Model):
     name = models.CharField(max_length=50)
+    details = models.TextField(
+        max_length=500,
+        null=True,
+        blank=True
+    )
     start_time = models.TimeField(
         auto_now_add=True,  # automatically sets to the time when the object is created
     )
@@ -28,7 +33,7 @@ class GameInstance(models.Model):
     ) 
     
     reference_lat = models.DecimalField(decimal_places=8, max_digits=11, null=True, blank=True) # Blanks b/c game created before photo
-    reference_lng = models.DecimalField(decimal_places=8, max_digits=12, null=True, blank=True)
+    reference_lng = models.DecimalField(decimal_places=8, max_digits=12, null=True, blank=True) # Proper deployment will hide these
     
     
     
