@@ -22,8 +22,6 @@ BUCKET = 'wheredis'
 
 
 def home(request):
-  photo_obj = gpsphoto.getGPSData('/Users/Shawn/code/where_dis/main_app/wireframe.jpg')
-  print('photo_obj:', photo_obj)
   return render(request, 'home.html')
 
 
@@ -69,6 +67,9 @@ def game_map(request, game_id):
 
 
 # ------------------------PHOTOS---------------------------- #
+
+
+# Helper function for converting type of extracted lat and long
 def get_decimal_coordinates(info):
   for key in ['Latitude', 'Longitude']:
       if 'GPS'+key in info and 'GPS'+key+'Ref' in info:
@@ -81,49 +82,52 @@ def get_decimal_coordinates(info):
 
   if 'Latitude' in info and 'Longitude' in info:
       return [info['Latitude'], info['Longitude']]
+    
 
-def save_picture(form_picture):
-    # this function has to do with the module Pillow
-    # PIL
-    # purpose is to save the image as a static asset
-    # 1. generate a random name
-    random_hex = uuid.uuid4().hex[:8]# generates a random integer
-    # grabbing the ext , jpeg, jpg
+# def save_picture(form_picture):
+#     # this function has to do with the module Pillow
+#     # PIL
+#     # purpose is to save the image as a static asset
+#     # 1. generate a random name
+#     random_hex = uuid.uuid4().hex[:8]# generates a random integer
+#     # grabbing the ext , jpeg, jpg
     
-    print(form_picture, '<=====form_picture')
-    f_name, f_ext = os.path.splitext(form_picture.name)
-    # => ['jimProfile', 'png']
-    # create the random picture name with the correct extension
-    picture_name = random_hex + f_ext
-    # create the file_path
-    file_path = os.path.join(os.getcwd(), 'main_app/tmp/' + picture_name)
-    print(file_path, '<=======================file_path')
+#     print(form_picture, '<=====form_picture')
+#     f_name, f_ext = os.path.splitext(form_picture.name)
+#     # => ['jimProfile', 'png']
+#     # create the random picture name with the correct extension
+#     picture_name = random_hex + f_ext
+#     # create the file_path
+#     file_path = os.path.join(os.getcwd(), 'main_app/tmp/' + picture_name)
+#     print(file_path, '<=======================file_path')
     
-    # file_path = os.path.join(os.getcwd(), 'main_app/tmp' + picture_name) # print this
-    # Pillow code stars
-    # output_size = (125, 175) # set the size of picture, as tuple
-    # open the file sent from the client
-    i = Image.open(form_picture)
-    # exif = i._exif._loaded_exif
-    # print( i.gps_latitude, 'latitude')
+#     # file_path = os.path.join(os.getcwd(), 'main_app/tmp' + picture_name) # print this
+#     # Pillow code stars
+#     # output_size = (125, 175) # set the size of picture, as tuple
+#     # open the file sent from the client
+#     i = Image.open(form_picture)
+#     # exif = i._exif._loaded_exif
+#     # print( i.gps_latitude, 'latitude')
     
-    exif_dict = piexif.load(i.info["exif"])
-    exif_bytes = piexif.dump(exif_dict)
+#     exif_dict = piexif.load(i.info["exif"])
+#     exif_bytes = piexif.dump(exif_dict)
     
-    print(exif_bytes, '<=======exif_bytes')
+#     print(exif_bytes, '<=======exif_bytes')
     
-    # print(exif, 'exifffffffffffffffffffffffffffff')
+#     # print(exif, 'exifffffffffffffffffffffffffffff')
     
-    # i.thumbnail(output_size) # set the size accepts a tuple with dimensions
-    i.save(file_path) # save it to file path we created
-    return file_path  #RETURN FILEPATH
+#     # i.thumbnail(output_size) # set the size accepts a tuple with dimensions
+#     i.save(file_path) # save it to file path we created
+#     return file_path  #RETURN FILEPATH
   
   
-# CREATE HELPER FUNCTION TO DELETE
+# # CREATE HELPER FUNCTION TO DELETE
 
 
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
+  
+  #--------------------------INSIDE IF---------------------------
   photo_copy = copy.deepcopy(photo_file)
   exif = Image.open(photo_copy)._getexif()
   print(exif is not None)
@@ -141,6 +145,10 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   decimals = get_decimal_coordinates(exif['GPSInfo'])
   print(decimals)
   
+  lat = decimals[0]
+  lng = decimals[1]
+  #-----------------------------INSIDE IF--------------------------
+  
   if photo_file:
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
@@ -153,7 +161,7 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
       # photo_obj = gpsphoto.getGPSData(f'{url}')
       # print('photo_obj:', photo_obj)
       print(f'TRY step 3 url = {url}')
-      photo = Photo(url=url, game_instance_id=game_id, user=request.user) # DOUBLE-CHECK HERE TOO
+      photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng) # DOUBLE-CHECK HERE TOO
       print(f'TRY step 4 photo = {photo}')
       photo.save()
       print('TRY step 5')

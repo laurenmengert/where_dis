@@ -33,8 +33,8 @@ class Photo(models.Model):
     url = models.CharField(max_length=200)
     game_instance = models.ForeignKey(GameInstance, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)    # MAY WANT TO RECONSIDER CASCADE HERE. CAN USERS BE DELETED?
-    # lat = models.DecimalField()
-    # lng = models.DecimalField()
+    lat = models.DecimalField(decimal_places=8, max_digits=11)
+    lng = models.DecimalField(decimal_places=8, max_digits=12)
     
     def __str__(self):
         return f'Photo for game_id: {self.game_instance.id} user {self.user_id} @{self.url}'
