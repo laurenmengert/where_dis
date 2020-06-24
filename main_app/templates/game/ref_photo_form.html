@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<form action="{% url 'upload_ref_photo_nickname' game_id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+    {% csrf_token %}
+    <input type="file" name="photo-file">
+    <br>
+    <input type="submit" class="btn" value="Upload Photo">
+</form>
+
+
+{% endblock %}
