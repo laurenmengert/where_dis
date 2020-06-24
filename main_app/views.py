@@ -66,8 +66,13 @@ class GameCreate(CreateView):
 # MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW 
 def game_detail(request, game_id):
   game_from_db = GameInstance.objects.get(id=game_id)
+  # PASS RELEVANT REFERENCE PHOTO
+  # PASS WINNING LAT/LONG (DONE BY PASSING GAME)
+  ref_photo = Photo.objects.filter(game_instance=game_from_db, is_reference=True)[0]
+  print(ref_photo, '<=======================our photo')
   return render(request, 'game/detail.html', {
-    'game': game_from_db
+    'game': game_from_db,
+    'ref_photo': ref_photo
   })
 
 # def game_map(request):
