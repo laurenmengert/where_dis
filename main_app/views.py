@@ -68,6 +68,12 @@ class GameDelete(LoginRequiredMixin, DeleteView):
   model = GameInstance
   success_url = '/games/'
 
+  def get_context_data(self, **kwargs):          
+    context = super().get_context_data(**kwargs)                     
+    game = super(GameDelete, self).get_object()
+    context["game"] = game
+    return context
+
 # THIS IS THE BIG FUNCTION
 # MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW
 @login_required
