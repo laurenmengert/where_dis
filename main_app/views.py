@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView
 from django.urls import reverse
 from .models import GameInstance, Photo
 from decimal import Decimal
@@ -54,7 +54,7 @@ class GameList(LoginRequiredMixin, ListView):
 class GameCreate(LoginRequiredMixin, CreateView):
   model = GameInstance
   fields = ['name', 'details']
-  
+
   def form_valid(self, form):
     form.instance.host = self.request.user
     return super().form_valid(form)
@@ -64,6 +64,9 @@ class GameCreate(LoginRequiredMixin, CreateView):
     print(type(self.object.id), '<====================================================type(self.object.id)')
     return reverse('game_ref_photo_form', kwargs={'game_id':self.object.id})
   
+class GameDelete(LoginRequiredMixin, DeleteView):
+  model = GameInstance
+  success_url = '/games/'
 
 # THIS IS THE BIG FUNCTION
 # MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW

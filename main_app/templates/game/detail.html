@@ -4,6 +4,8 @@
 
 <p>{{ game.details }}</p>
 
+<a href="{% url 'game_delete' game.id %}">Delete</a>
+
 {% comment %} IF THERE IS A MATCH, DISPLAY THAT THERE IS A WINNER. IF NOT, SAY SOMETHING LESS EXCITING {% endcomment %}
 
 <img class="responsive-img card-panel" src="{{ref_photo.url}}" />
