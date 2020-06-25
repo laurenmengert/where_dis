@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from django.urls import reverse
@@ -64,7 +65,8 @@ class GameCreate(CreateView):
   
 
 # THIS IS THE BIG FUNCTION
-# MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW 
+# MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW
+@login_required
 def game_detail(request, game_id):
   game_from_db = GameInstance.objects.get(id=game_id)
   # PASS RELEVANT REFERENCE PHOTO
@@ -81,7 +83,7 @@ def game_detail(request, game_id):
 # def game_map(request):
 #     mapbox_access_token = ''
 #     return render(request, 'map.html', { 'mapbox_access_token': mapbox_access_token })
-
+@login_required
 def game_map(request, game_id):
   # NEED TO PASS CENTER OF MAP DATA HERE
   context = {'mapbox_access_token': ''}
@@ -107,12 +109,12 @@ def get_decimal_coordinates(info):
   if 'Latitude' in info and 'Longitude' in info:
       return [info['Latitude'], info['Longitude']]
 
-
+@login_required
 def game_ref_photo_form(request, game_id):
   context = {'game_id':game_id}
   return render(request, 'game/ref_photo_form.html', context)
 
-
+@login_required
 def upload_ref_photo_function(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
   game = GameInstance.objects.get(id=game_id)
@@ -213,6 +215,7 @@ def upload_ref_photo_function(request, game_id):
 
 
 # THIS FUNCTION IS ONLY CALLED ON NON-REFERENCE PHOTOS FOR A GAME
+@login_required
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
   
