@@ -17,7 +17,7 @@ import copy
 
 
 S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
-BUCKET = 'wheredis'
+BUCKET = 'where-dis'
 
 
 
