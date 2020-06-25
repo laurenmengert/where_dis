@@ -8,37 +8,29 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Where_Dis</title>
     <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
 </head>
 <body>
-    <header>
-        <nav role="navigation">
-            <div id="menuToggle">
-                <input type="checkbox" />
-                <span></span>
-                <span></span>
-                <span></span>
-                <ul id="menu">
-                    {% comment %} <a href="{% url 'about' %}"><li>About</li></a> {% endcomment %}
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'game_create' %}"><li>New Game</li></a>
-                    <a href="{% url 'game_list' %}"><li>All Games</li></a>
-                    <a href="{% url 'logout' %}"><li>Log Out</li></a>
-                    {% else %}
-                    <a href="{% url 'signup' %}"><li>Sign Up</li></a>
-                    <a href="{% url 'login' %}"><li>Log In</li></a>
-                    {% endif %}
-                </ul>
-            </div>
-            <ul class="footer">
-                <li><a href="/">&nbsp;&nbsp;Where_Dis</a></li>
+    <header class="header">
+        <a href="/" class="logo">&nbsp;&nbsp;Where_Dis</a>
+        <input class="menu-btn" type="checkbox" id="menu-btn" />
+        <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+            <ul class="menu">
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'game_create' %}">New Game</a></li>
+                <li><a href="{% url 'game_list' %}">All Games</a></li>
+                <li><a href="{% url 'logout' %}">Log Out</a></li>
+                {% else %}
+                <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                <li><a href="{% url 'login' %}">Log In</a></li>
+                {% endif %}
             </ul>
-        </nav>
-    </header>
+    </header><br><br><br>
     <main>
         {% block content %}
         {% endblock %}
