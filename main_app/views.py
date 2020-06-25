@@ -70,10 +70,12 @@ def game_detail(request, game_id):
   # PASS RELEVANT REFERENCE PHOTO
   # PASS WINNING LAT/LONG (DONE BY PASSING GAME)
   ref_photo = Photo.objects.filter(game_instance=game_from_db, is_reference=True)[0]
+  photo_attempts = Photo.objects.filter(game_instance=game_from_db, is_reference=False)
   print(ref_photo, '<=======================our photo')
   return render(request, 'game/detail.html', {
     'game': game_from_db,
-    'ref_photo': ref_photo
+    'ref_photo': ref_photo,
+    'photo_attempts': photo_attempts
   })
 
 # def game_map(request):
@@ -265,7 +267,7 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
       print(type(lat), '<===============type(lat)')
       print(type(game.reference_lat), '<===============type(game.reference_lat)')
       print(abs(lat - game.reference_lat), '<============absolute difference lats ')
-      if (abs(lat - game.reference_lat) < 0.00004) and (abs(lng - game.reference_lng) < 0.00004):
+      if (abs(lat - game.reference_lat) < 0.00008) and (abs(lng - game.reference_lng) < 0.00008):
         # print(photo.user, '<=======================photo.user')
         # DOES THIS UPDATE GAME_INSTANCE.WINNER PROPERLY??!!??!??
         game.winner = request.user
