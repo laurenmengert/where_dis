@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from django.urls import reverse
@@ -46,11 +47,11 @@ def signup(request):
 
 # ------------------------GAMES---------------------------- #
 
-class GameList(ListView):
+class GameList(LoginRequiredMixin, ListView):
   model = GameInstance
   
   
-class GameCreate(CreateView):
+class GameCreate(LoginRequiredMixin, CreateView):
   model = GameInstance
   fields = ['name', 'details']
   
