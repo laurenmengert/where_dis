@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView
 from django.urls import reverse
 from .models import GameInstance, Photo
 from decimal import Decimal
@@ -45,14 +47,14 @@ def signup(request):
 
 # ------------------------GAMES---------------------------- #
 
-class GameList(ListView):
+class GameList(LoginRequiredMixin, ListView):
   model = GameInstance
   
   
-class GameCreate(CreateView):
+class GameCreate(LoginRequiredMixin, CreateView):
   model = GameInstance
   fields = ['name', 'details']
-  
+
   def form_valid(self, form):
     form.instance.host = self.request.user
     return super().form_valid(form)
@@ -62,9 +64,19 @@ class GameCreate(CreateView):
     print(type(self.object.id), '<====================================================type(self.object.id)')
     return reverse('game_ref_photo_form', kwargs={'game_id':self.object.id})
   
+class GameDelete(LoginRequiredMixin, DeleteView):
+  model = GameInstance
+  success_url = '/games/'
+
+  def get_context_data(self, **kwargs):          
+    context = super().get_context_data(**kwargs)                     
+    game = super(GameDelete, self).get_object()
+    context["game"] = game
+    return context
 
 # THIS IS THE BIG FUNCTION
-# MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW 
+# MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW
+@login_required
 def game_detail(request, game_id):
   game_from_db = GameInstance.objects.get(id=game_id)
   # PASS RELEVANT REFERENCE PHOTO
@@ -81,7 +93,7 @@ def game_detail(request, game_id):
 # def game_map(request):
 #     mapbox_access_token = ''
 #     return render(request, 'map.html', { 'mapbox_access_token': mapbox_access_token })
-
+@login_required
 def game_map(request, game_id):
   # NEED TO PASS CENTER OF MAP DATA HERE
   context = {'mapbox_access_token': ''}
@@ -107,12 +119,12 @@ def get_decimal_coordinates(info):
   if 'Latitude' in info and 'Longitude' in info:
       return [info['Latitude'], info['Longitude']]
 
-
+@login_required
 def game_ref_photo_form(request, game_id):
   context = {'game_id':game_id}
   return render(request, 'game/ref_photo_form.html', context)
 
-
+@login_required
 def upload_ref_photo_function(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
   game = GameInstance.objects.get(id=game_id)
@@ -213,6 +225,7 @@ def upload_ref_photo_function(request, game_id):
 
 
 # THIS FUNCTION IS ONLY CALLED ON NON-REFERENCE PHOTOS FOR A GAME
+@login_required
 def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
   photo_file = request.FILES.get('photo-file', None)
   
