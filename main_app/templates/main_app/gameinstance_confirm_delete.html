@@ -1,0 +1,14 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+{% if game.host == request.user %}
+<h1>Delete Game</h1>
+<h4>Are you sure you want to delete <span class="teal-text">{{ object.name }}</span>?</h4>
+<form action="" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Game Over!" class="btn">
+    <a href="{% url 'game_list' %}">Cancel</a>
+</form>
+{% endif %}
+{% endblock %}

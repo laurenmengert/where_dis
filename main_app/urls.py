@@ -13,5 +13,7 @@ urlpatterns = [
     path('games/<int:game_id>/', views.game_detail, name='game_detail'),
     path('games/<int:game_id>/upload_photo/', views.upload_photo, name='upload_photo'),
     path('games/<int:game_id>/game_map/', views.game_map, name='game_map'),
+    path('games/<int:pk>/game_delete/', views.GameDelete.as_view(), name='game_delete'),
+    
     # url(r'map/', views.game_map, name="game_map"),    # HOW TF IS THIS WORKING?!?!?!?!?!?
 ]
