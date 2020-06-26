@@ -6,7 +6,7 @@
 <h4>Are you sure you want to delete <span>{{ object.name }}</span>?</h4>
 <form class="card-panel" action="" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Game Over!" class="pure-button">
+    <input type="submit" value="Game Over!" class="pure-button"><br><br>
     <a href="{% url 'game_detail' object.id %}">Cancel</a>
 </form>
 {% else %}

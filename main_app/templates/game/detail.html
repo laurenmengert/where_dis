@@ -6,12 +6,14 @@
 <p class="paragraph">{{ game.details }}</p>
 
 {% if game.host == request.user %}
-<a class ="pure-button" href="{% url 'game_delete' game.id %}">Delete Game</a>
+<form method="get" action="{% url 'game_delete' game.id %}">
+  <input class="pure-button" type="submit" value="Delete Game">
+</form>
 <br><br>
 {% endif %}
 
 {% if game.winner %}
-  <h3>{{ game.winner.username }} has already won this game</h3>
+  <h3><span class="winner-name">{{ game.winner.username }}</span> has already won this game!</h3>
 {% endif %}
 
 {% comment %} IF THERE IS A MATCH, DISPLAY THAT THERE IS A WINNER. IF NOT, SAY SOMETHING LESS EXCITING {% endcomment %}
@@ -22,9 +24,9 @@
 <!-- below npmcd script is necessary source for circle to render  -->
 
 <h4>Find_dis somewhere in the circle.</h4>
-<p>And don't do anything stupid.</p> 
-<p>We're not going to be liable if you get hit by a train, walk off a cliff, or 
-try to take a selfie with a pack of hungry wolves.</p>
+<p class="paragraph">And don't do anything stupid.</p> 
+<p class="paragraph">We're not going to be liable if you get hit by a train, walk off a cliff,
+  <br> or try to take a selfie with a pack of hungry wolves.</p>
 
 <div class="responsive-img card-panel" id="map" style="width: 40rem; height: 30rem;"></div>
 <script>
@@ -99,10 +101,17 @@ class="card-panel"
   
   
   {% comment %} ELIMINATE REFERENCE PHOTO FROM THESE {% endcomment %}
-<h4>Previous attempts:</h4>
+<h4>Previous Attempts:</h4>
   {% for photo in photo_attempts %}
-  <img class="responsive-img card-panel" src="{{photo.url}}" />
-  {% empty %}
+  <div class="image-grid">
+    <h6>
+      <span>
+        {{ photo.user }}'s attempt
+      </span>
+    </h6>
+    <img id="image-attempt" class="responsive-img card-panel" src="{{photo.url}}"/>
+  </div>
+    {% empty %}
   <div class="card-panel center-align">No Photos Uploaded</div>
   {% endfor %}
   

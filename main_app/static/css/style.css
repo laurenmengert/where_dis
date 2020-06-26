@@ -44,7 +44,6 @@
   .header li a {
     display: block;
     padding: 20px 20px;
-    /* border-right: 1px solid #f4f4f4; */
     text-decoration: none;
     background-color: rgba(246,146,113, .8);
     color: rgb(75, 75, 75);
@@ -168,6 +167,39 @@
     margin-bottom: 0;
   }
 
+  p a {
+    color: rgb(141, 207, 175);
+  }
+
+  .paragraph {
+    font-size: 1.5em;
+  }
+
+  .winner-name {
+    color: rgb(141, 207, 175);
+    font-weight: 700;
+  }
+
+  .image-grid {
+    position: relative;
+    display: inline-block;
+  }
+
+  .image-grid h6 {
+    top: 7%;
+    left: 0;
+    width: 100%;
+    position: absolute;
+  }
+  
+  .image-grid span {
+    background-color: rgba(141, 207, 175, .7);
+    padding: .3em .6em;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 1.3em;
+  }
+
 
   /* 48em = 768px */
   
@@ -190,7 +222,8 @@
       margin:0 auto;
       width: 500px;
     } 
- 
-
+    #image-attempt {
+      width: 300px;
+    }
   }
   
