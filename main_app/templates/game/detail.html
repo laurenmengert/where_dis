@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block content %}
 
 <h1>{{ game.name }} Details</h1>
 
@@ -19,6 +20,11 @@
 
 <!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.js'></script> -->
 <!-- below npmcd script is necessary source for circle to render  -->
+
+<h4>Find_dis somewhere in the circle.</h4>
+<p>And don't do anything stupid.</p> 
+<p>We're not going to be liable if you get hit by a train, walk off a cliff, or 
+try to take a selfie with a pack of hungry wolves.</p>
 
 <div class="responsive-img card-panel" id="map" style="width: 40rem; height: 30rem;"></div>
 <script>
@@ -74,6 +80,7 @@
 </script>
 
 {% if not game.winner %}
+<h4>Give it a shot. Upload a photo.</h4>
 <form
 action="{% url 'upload_photo' game.id %}"
 enctype="multipart/form-data"
@@ -88,10 +95,11 @@ class="card-panel"
 </form>
 <p class="paragraph">Having trouble? Make sure your photos are in .jpg format and the
   location is being saved!</p>
-  {% endif %}
+{% endif %}
   
   
   {% comment %} ELIMINATE REFERENCE PHOTO FROM THESE {% endcomment %}
+<h4>Previous attempts:</h4>
   {% for photo in photo_attempts %}
   <img class="responsive-img card-panel" src="{{photo.url}}" />
   {% empty %}

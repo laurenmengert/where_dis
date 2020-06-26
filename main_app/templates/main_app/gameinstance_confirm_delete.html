@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
@@ -8,7 +7,7 @@
 <form class="card-panel" action="" method="POST">
     {% csrf_token %}
     <input type="submit" value="Game Over!" class="pure-button">
-    <a href="{% url 'game_list' %}">Cancel</a>
+    <a href="{% url 'game_detail' object.id %}">Cancel</a>
 </form>
 {% else %}
 <img src="https://media.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif" alt="">
