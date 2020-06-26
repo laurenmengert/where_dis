@@ -6,10 +6,10 @@
 
 {% if error_message %}<p class="red-text">{{ error_message }}</p>{% endif %}
 <!-- Add the login form -->
-<form method="post" action="{% url 'signup' %}">
+<form class="card-panel" method="post" action="{% url 'signup' %}">
   {% csrf_token %}
   {{ form.as_p }}
-  <input type="submit" class="btn" value="Signup">
+  <input type="submit" class="pure-button" value="Signup">
   <input type="hidden" name="next" value="{{ next }}">
 </form>
 

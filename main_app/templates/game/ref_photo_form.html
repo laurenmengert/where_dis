@@ -4,8 +4,8 @@
 <form action="{% url 'upload_ref_photo_nickname' game_id %}" enctype="multipart/form-data" method="POST" class="card-panel">
     {% csrf_token %}
     <input type="file" name="photo-file">
-    <br>
-    <input type="submit" class="btn" value="Upload Photo">
+    <br><br>
+    <input type="submit" class="pure-button" value="Upload Photo">
 </form>
 {% else %}
 <img src="https://media.giphy.com/media/13k0uUW3Aicx20/giphy.gif" alt="">
