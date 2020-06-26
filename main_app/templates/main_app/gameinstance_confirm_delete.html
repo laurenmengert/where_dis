@@ -4,10 +4,10 @@
 {% block content %}
 {% if game.host == request.user %}
 <h1>Delete Game</h1>
-<h4>Are you sure you want to delete <span class="teal-text">{{ object.name }}</span>?</h4>
-<form action="" method="POST">
+<h4>Are you sure you want to delete <span>{{ object.name }}</span>?</h4>
+<form class="card-panel" action="" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Game Over!" class="btn">
+    <input type="submit" value="Game Over!" class="pure-button">
     <a href="{% url 'game_list' %}">Cancel</a>
 </form>
 {% else %}
