@@ -31,15 +31,15 @@ To build this app, we used the following technologies:
 
 ## How does it look?
 
-We really like what we did with the design! Here's what we did with the general design:
+### We really like what we did with the design! Here's what we did with the general design:
 
 ![Imgur](https://i.imgur.com/BcONNiC.png)
 
-Here it is on mobile:
+### Here it is on mobile:
 
 ![Imgur](https://i.imgur.com/uP1HGKw.png)   ![Imgur](https://i.imgur.com/DgeOjp0.png)
 
-Here's our awesome map:
+### Here's our awesome map:
 
 ![Imgur](https://i.imgur.com/695A8Qu.png)
 
