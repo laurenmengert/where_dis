@@ -129,7 +129,7 @@ def game_ref_photo_form(request, game_id):
   game = GameInstance.objects.get(id=game_id)
   context = {
     'game_id':game_id,
-    'game':game
+    'game':game,
   }
   return render(request, 'game/ref_photo_form.html', context)
 
@@ -154,6 +154,8 @@ def upload_ref_photo_function(request, game_id):
             for key in exif['GPSInfo'].keys():
                 name = GPSTAGS.get(key,key)
                 exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+        else:
+          return redirect('game_ref_photo_form', game_id=game_id)
                 
     print(exif, 'EXIFFFFFFFF')
     decimals = get_decimal_coordinates(exif['GPSInfo'])
@@ -187,8 +189,10 @@ def upload_ref_photo_function(request, game_id):
       # print('photo_obj:', photo_obj)
     except:
       print('There has been an error uploading to S3')
-  return redirect('game_detail', game_id=game_id)
-
+    return redirect('game_detail', game_id=game_id)
+  
+  else:
+    return redirect('game_ref_photo_form', game_id=game_id)
 
 
     
