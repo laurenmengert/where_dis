@@ -126,7 +126,11 @@ def get_decimal_coordinates(info):
 
 @login_required
 def game_ref_photo_form(request, game_id):
-  context = {'game_id':game_id}
+  game = GameInstance.objects.get(id=game_id)
+  context = {
+    'game_id':game_id,
+    'game':game
+  }
   return render(request, 'game/ref_photo_form.html', context)
 
 @login_required

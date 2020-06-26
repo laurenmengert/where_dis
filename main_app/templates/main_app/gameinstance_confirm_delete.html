@@ -10,5 +10,7 @@
     <input type="submit" value="Game Over!" class="btn">
     <a href="{% url 'game_list' %}">Cancel</a>
 </form>
+{% else %}
+<img src="https://media.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif" alt="">
 {% endif %}
 {% endblock %}
