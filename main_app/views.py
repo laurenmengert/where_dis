@@ -235,9 +235,11 @@ def upload_photo(request, game_id):
       url = f'{S3_BASE_URL}{BUCKET}/{key}'
       photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng)
       # WIN LOGIC
-      # 0.00001 is appx 1 meter, so 0.0004 is somewhere around 12 feet
-      # so this creates about a 24ft x 24ft box as a margin of error
-      if (abs(lat - game.reference_lat) < 0.00008) and (abs(lng - game.reference_lng) < 0.00008):
+      # 0.00001 is appx 1 meter, so 0.00012 is somewhere around 40 feet
+      # so this creates about a 80ft x 80ft box as a margin of error
+      # this might seem large, but cell phone gps is only accurate to about
+      # 16 ft. This accuracy is further diminished by proximity to buildings
+      if (abs(lat - game.reference_lat) < 0.00012) and (abs(lng - game.reference_lng) < 0.00012):
         game.winner = request.user
         game.save()
       photo.save()
