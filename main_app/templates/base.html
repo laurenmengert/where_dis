@@ -1,5 +1,6 @@
 {% load static %}
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,12 +23,12 @@
         <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
             <ul class="menu">
                 {% if user.is_authenticated %}
-                <li><a href="{% url 'game_create' %}">New Game</a></li>
-                <li><a href="{% url 'game_list' %}">All Games</a></li>
-                <li><a href="{% url 'logout' %}">Log Out</a></li>
+                    <li><a href="{% url 'game_create' %}">New Game</a></li>
+                    <li><a href="{% url 'game_list' %}">All Games</a></li>
+                    <li><a href="{% url 'logout' %}">Log Out</a></li>
                 {% else %}
-                <li><a href="{% url 'signup' %}">Sign Up</a></li>
-                <li><a href="{% url 'login' %}">Log In</a></li>
+                    <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                    <li><a href="{% url 'login' %}">Log In</a></li>
                 {% endif %}
             </ul>
     </header><br><br><br>

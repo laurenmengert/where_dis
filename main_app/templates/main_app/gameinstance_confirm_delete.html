@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
-
 {% block content %}
+
+
 {% if game.host == request.user %}
-<h1>Delete Game</h1>
-<h4>Are you sure you want to delete <span>{{ object.name }}</span>?</h4>
-<form class="card-panel" action="" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Game Over!" class="pure-button"><br><br>
-    <a href="{% url 'game_detail' object.id %}">Cancel</a>
-</form>
+    <h1>Delete Game</h1>
+    <h4>Are you sure you want to delete <span>{{ object.name }}</span>?</h4>
+    <form class="card-panel" action="" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Game Over!" class="pure-button"><br><br>
+        <a href="{% url 'game_detail' object.id %}">Cancel</a>
+    </form>
 {% else %}
-<img src="https://media.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif" alt="">
+    {% comment %} You've been naughty if you see this. {% endcomment %}
+    <img src="https://media.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif">
 {% endif %}
+
+
 {% endblock %}

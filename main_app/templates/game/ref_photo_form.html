@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
+
+
 {% if game.host == request.user %}
-<form action="{% url 'upload_ref_photo_nickname' game_id %}" enctype="multipart/form-data" method="POST" class="card-panel">
-    {% csrf_token %}
-    <input type="file" name="photo-file">
-    <br><br>
-    <input type="submit" class="pure-button" value="Upload Photo">
-</form>
-<p class="paragraph">Having trouble? Make sure your photos are in .jpg format and the
-  location is being saved!</p>
+    <form action="{% url 'upload_ref_photo_nickname' game_id %}" enctype="multipart/form-data" method="POST" class="card-panel">
+        {% csrf_token %}
+        <input type="file" name="photo-file">
+        <br><br>
+        <input type="submit" class="pure-button" value="Upload Photo">
+    </form>
+    <p class="paragraph">Having trouble? Make sure your photos are in .jpg format and the
+    location is being saved!
+    <br>Oh, and please keep the images under 10MB.</p>
 {% else %}
-<img src="https://media.giphy.com/media/13k0uUW3Aicx20/giphy.gif" alt="">
+    {% comment %} If you see this on the client, I want to know why you have to mess with nice things. {% endcomment %}
+    <img src="https://media.giphy.com/media/13k0uUW3Aicx20/giphy.gif">
 {% endif %}
+
+
 {% endblock %}

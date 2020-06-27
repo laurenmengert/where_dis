@@ -19,7 +19,7 @@ import random
 # ----------------------CONSTANTS-------------------------- #
 
 S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
-BUCKET = 'where-dis'
+BUCKET = 'wheredis'
 
 # -----------------------GENERAL--------------------------- #
 
@@ -70,15 +70,17 @@ class GameDelete(LoginRequiredMixin, DeleteView):
     context["game"] = game
     return context
 
-# THIS IS THE BIG FUNCTION
-# MAKE SURE WE SEND THE DATA WE NEED TO THE GAME DETAIL VIEW
+
+
 @login_required
 def game_detail(request, game_id):
   game_from_db = GameInstance.objects.get(id=game_id)
-  # PASS RELEVANT REFERENCE PHOTO
-  # PASS WINNING LAT/LONG (DONE BY PASSING GAME)
+  # grabs the first (and only) reference photo
   ref_photo = Photo.objects.filter(game_instance=game_from_db, is_reference=True)[0]
+  # grabs all photos from this game, except the reference photo
   photo_attempts = Photo.objects.filter(game_instance=game_from_db, is_reference=False)
+  # randomly shifts the center of the circle and the map
+  # designed to create a square circuscribed within this circle
   rand_lat = Decimal(random.uniform(-.0035, .0035)) + game_from_db.reference_lat
   rand_lng = Decimal(random.uniform(-.0035, .0035)) + game_from_db.reference_lng
   return render(request, 'game/detail.html', {
@@ -92,9 +94,8 @@ def game_detail(request, game_id):
 
 @login_required
 def game_map(request, game_id):
-  # NEED TO PASS CENTER OF MAP DATA HERE
-  context = {'mapbox_access_token': ''}
-  return redirect('game_detail', context, game_id=game_id)
+  return redirect('game_detail', game_id=game_id)
+
 
 
 # ------------------------PHOTOS---------------------------- #
@@ -124,6 +125,8 @@ def game_ref_photo_form(request, game_id):
   return render(request, 'game/ref_photo_form.html', context)
 
 
+
+# THIS FUNCTION IS ONLY CALLED DURING GAME CREATION
 @login_required
 def upload_ref_photo_function(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
@@ -133,8 +136,9 @@ def upload_ref_photo_function(request, game_id):
     # COPIES PHOTO TO EXTRACT METADATA
     # EXTRACTED PHOTO IS CORRUPTED
     photo_copy = copy.deepcopy(photo_file)
+    # exif is the metadata from the image
     exif = Image.open(photo_copy)._getexif()
-    
+
     if exif is not None:
         for key, value in exif.items():
             name = TAGS.get(key, key)
@@ -145,8 +149,17 @@ def upload_ref_photo_function(request, game_id):
                 name = GPSTAGS.get(key,key)
                 exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
         else:
+          # NO LOCATION DATA, USER WILL NEED TO TRY ANOTHER PHOTO
           return redirect('game_ref_photo_form', game_id=game_id)
+
+    else:
+      # NO EXIF DATA, USER WILL NEED TO TRY ANOTHER PHOTO
+      # THESE STATEMENTS ARE NOT REDUNDANT
+      # CONSIDER THE CASE WHERE GPS IS STRIPPED FROM EXIF
+      return redirect('game_ref_photo_form', game_id=game_id)
+
     decimals = get_decimal_coordinates(exif['GPSInfo'])
+    
     lat = decimals[0]
     lng = decimals[1]
     # SETS WINNING POSITION OF GAME
@@ -162,15 +175,19 @@ def upload_ref_photo_function(request, game_id):
       photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng, is_reference=True)
       photo.save()
     except:
+      # KEEP THIS PRINT FOR AWS ERROR VISIBILITY
       print('There has been an error uploading to S3')
+    
+    # PHOTO FILE SAVED, REDIRECT TO GAME DETAIL PAGE
     return redirect('game_detail', game_id=game_id)
   else:
+    # NO PHOTO FILE, USER WILL NEED TO TRY AGAIN
     return redirect('game_ref_photo_form', game_id=game_id)
 
 
 # THIS FUNCTION IS ONLY CALLED ON NON-REFERENCE PHOTOS FOR A GAME
 @login_required
-def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
+def upload_photo(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
   
   if photo_file:
@@ -186,9 +203,19 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
         if 'GPSInfo' in exif:
             for key in exif['GPSInfo'].keys():
                 name = GPSTAGS.get(key,key)
-                exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)         
+
+                exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
+        else:
+          # NO LOCATION DATA, USER WILL NEED TO TRY ANOTHER PHOTO
+          return redirect('game_detail', game_id=game_id)
+    else:
+      # NO EXIF DATA, USER WILL NEED TO TRY ANOTHER PHOTO
+      # THESE STATEMENTS ARE NOT REDUNDANT
+      # CONSIDER THE CASE WHERE GPS IS STRIPPED FROM EXIF
+      return redirect('game_detail', game_id=game_id)
+                
+
     decimals = get_decimal_coordinates(exif['GPSInfo'])
-    print(decimals)
     
     lat = Decimal(decimals[0])
     lng = Decimal(decimals[1])
@@ -197,17 +224,24 @@ def upload_photo(request, game_id): # DOUBLE-CHECK GAME ID AND MULTIPLE KWARGS
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     game = GameInstance.objects.get(id=game_id)
+
     try:
       s3.upload_fileobj(photo_file, BUCKET, key)
       url = f'{S3_BASE_URL}{BUCKET}/{key}'
       photo = Photo(url=url, game_instance_id=game_id, user=request.user, lat=lat, lng=lng)
       # WIN LOGIC
-      # 0.00001 is appx 1 meter, so 0.0004 is somewhere around 12 feet
-      # so this creates about a 24ft x 24ft box as a margin of error
-      if (abs(lat - game.reference_lat) < 0.00008) and (abs(lng - game.reference_lng) < 0.00008):
+      # 0.00001 is appx 1 meter, so 0.00012 is somewhere around 40 feet
+      # so this creates about a 80ft x 80ft box as a margin of error
+      # this might seem large, but cell phone gps is only accurate to about
+      # 16 ft. This accuracy is further diminished by proximity to buildings
+      if (abs(lat - game.reference_lat) < 0.00012) and (abs(lng - game.reference_lng) < 0.00012):
+
         game.winner = request.user
         game.save()
       photo.save()
     except:
+      # KEEP THIS PRINT FOR AWS ERROR VISIBILITY
       print('There has been an error uploading to S3')
+      
+  # NO MATTER WHAT, WE RELOAD THE PAGE
   return redirect('game_detail', game_id=game_id)

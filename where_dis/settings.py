@@ -122,7 +122,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/games/'
-# need to update to direct to list of games
+
 LOGOUT_REDIRECT_URL = '/'
+
+# To prevent serialization of 'normal-sized' images
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 django_heroku.settings(locals())

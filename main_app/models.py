@@ -34,6 +34,7 @@ class GameInstance(models.Model):
     
     reference_lat = models.DecimalField(decimal_places=8, max_digits=11, null=True, blank=True) # Blanks b/c game created before photo
     reference_lng = models.DecimalField(decimal_places=8, max_digits=12, null=True, blank=True) 
+
     
     def __str__(self):
         return self.name
@@ -51,5 +52,6 @@ class Photo(models.Model):
     lng = models.DecimalField(decimal_places=8, max_digits=12)
     
     def __str__(self):
-        return f'Photo for game_id: {self.game_instance.id} user {self.user_id} @{self.url}'
-    
+
+        return f'Photo for game_id: {self.game_instance.id} user {self.user_id} @{self.url}'  
+

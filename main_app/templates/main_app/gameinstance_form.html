@@ -1,18 +1,16 @@
 {% extends 'base.html' %}
-
 {% block content %}
-  {% if object %}
-    <h1>Edit <span>{{object.name}}</span></h1>
-  {% else %}
-    <h1>Create New Game</h1>
-  {% endif %}
 
-  <form class="card-panel" action="" method="post">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit" class="pure-button">
-  </form>
+
+<h1>Create New Game</h1>
+
+<form class="card-panel" action="" method="post">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <input type="submit" value="Submit" class="pure-button">
+</form>
+
 
 {% endblock %}
