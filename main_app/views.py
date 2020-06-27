@@ -18,14 +18,10 @@ import random
 
 # ----------------------CONSTANTS-------------------------- #
 
-
 S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
 BUCKET = 'wheredis'
 
-
-
 # -----------------------GENERAL--------------------------- #
-
 
 def home(request):
   return render(request, 'home.html')
@@ -62,6 +58,7 @@ class GameCreate(LoginRequiredMixin, CreateView):
   
   def get_success_url(self):
     return reverse('game_ref_photo_form', kwargs={'game_id':self.object.id})
+  
   
 class GameDelete(LoginRequiredMixin, DeleteView):
   model = GameInstance
@@ -103,7 +100,6 @@ def game_map(request, game_id):
 
 # ------------------------PHOTOS---------------------------- #
 
-
 # Helper function for converting type of extracted lat and long
 def get_decimal_coordinates(info):
   for key in ['Latitude', 'Longitude']:
@@ -129,6 +125,7 @@ def game_ref_photo_form(request, game_id):
   return render(request, 'game/ref_photo_form.html', context)
 
 
+
 # THIS FUNCTION IS ONLY CALLED DURING GAME CREATION
 @login_required
 def upload_ref_photo_function(request, game_id):
@@ -141,6 +138,7 @@ def upload_ref_photo_function(request, game_id):
     photo_copy = copy.deepcopy(photo_file)
     # exif is the metadata from the image
     exif = Image.open(photo_copy)._getexif()
+
     if exif is not None:
         for key, value in exif.items():
             name = TAGS.get(key, key)
@@ -153,6 +151,7 @@ def upload_ref_photo_function(request, game_id):
         else:
           # NO LOCATION DATA, USER WILL NEED TO TRY ANOTHER PHOTO
           return redirect('game_ref_photo_form', game_id=game_id)
+
     else:
       # NO EXIF DATA, USER WILL NEED TO TRY ANOTHER PHOTO
       # THESE STATEMENTS ARE NOT REDUNDANT
@@ -163,16 +162,13 @@ def upload_ref_photo_function(request, game_id):
     
     lat = decimals[0]
     lng = decimals[1]
-    
     # SETS WINNING POSITION OF GAME
     game.reference_lat = lat
     game.reference_lng = lng
     game.save()
-    
     # SAVES PHOTO TO S3, AND SAVES REFS TO SQL DB
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
-    
     try:
       s3.upload_fileobj(photo_file, BUCKET, key)
       url = f'{S3_BASE_URL}{BUCKET}/{key}'
@@ -184,7 +180,6 @@ def upload_ref_photo_function(request, game_id):
     
     # PHOTO FILE SAVED, REDIRECT TO GAME DETAIL PAGE
     return redirect('game_detail', game_id=game_id)
-  
   else:
     # NO PHOTO FILE, USER WILL NEED TO TRY AGAIN
     return redirect('game_ref_photo_form', game_id=game_id)
@@ -194,7 +189,6 @@ def upload_ref_photo_function(request, game_id):
 @login_required
 def upload_photo(request, game_id):
   photo_file = request.FILES.get('photo-file', None)
-  
   
   if photo_file:
     # COPIES PHOTO TO EXTRACT METADATA
@@ -206,10 +200,10 @@ def upload_photo(request, game_id):
         for key, value in exif.items():
             name = TAGS.get(key, key)
             exif[name] = exif.pop(key)
-
         if 'GPSInfo' in exif:
             for key in exif['GPSInfo'].keys():
                 name = GPSTAGS.get(key,key)
+
                 exif['GPSInfo'][name] = exif['GPSInfo'].pop(key)
         else:
           # NO LOCATION DATA, USER WILL NEED TO TRY ANOTHER PHOTO
@@ -220,6 +214,7 @@ def upload_photo(request, game_id):
       # CONSIDER THE CASE WHERE GPS IS STRIPPED FROM EXIF
       return redirect('game_detail', game_id=game_id)
                 
+
     decimals = get_decimal_coordinates(exif['GPSInfo'])
     
     lat = Decimal(decimals[0])
@@ -229,7 +224,7 @@ def upload_photo(request, game_id):
     s3 = boto3.client('s3')
     key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
     game = GameInstance.objects.get(id=game_id)
-    
+
     try:
       s3.upload_fileobj(photo_file, BUCKET, key)
       url = f'{S3_BASE_URL}{BUCKET}/{key}'
@@ -240,6 +235,7 @@ def upload_photo(request, game_id):
       # this might seem large, but cell phone gps is only accurate to about
       # 16 ft. This accuracy is further diminished by proximity to buildings
       if (abs(lat - game.reference_lat) < 0.00012) and (abs(lng - game.reference_lng) < 0.00012):
+
         game.winner = request.user
         game.save()
       photo.save()
