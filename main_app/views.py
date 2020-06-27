@@ -20,7 +20,7 @@ import random
 
 
 S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
-BUCKET = 'where-dis'
+BUCKET = 'wheredis'
 
 
 
@@ -82,6 +82,8 @@ def game_detail(request, game_id):
   game_from_db = GameInstance.objects.get(id=game_id)
   # PASS RELEVANT REFERENCE PHOTO
   # PASS WINNING LAT/LONG (DONE BY PASSING GAME)
+  print(Photo.objects.filter(game_instance=game_from_db, is_reference=True), '<=====================the list ref_photo')
+  print(Photo.objects.filter(game_instance=game_from_db, is_reference=True)[0], '<======================first item in ref_photo')
   ref_photo = Photo.objects.filter(game_instance=game_from_db, is_reference=True)[0]
   photo_attempts = Photo.objects.filter(game_instance=game_from_db, is_reference=False)
   rand_lat = Decimal(random.uniform(-.0035, .0035)) + game_from_db.reference_lat

@@ -125,4 +125,6 @@ LOGIN_REDIRECT_URL = '/games/'
 # need to update to direct to list of games
 LOGOUT_REDIRECT_URL = '/'
 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
 django_heroku.settings(locals())
