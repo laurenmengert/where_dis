@@ -3,7 +3,7 @@ asgiref==3.2.7
 astroid==2.4.2
 boto3==1.14.8
 botocore==1.17.8
-certifi==2020.4.5.2
+certifi==2022.12.7
 choicesenum==0.6.0
 distlib==0.3.0
 dj-database-url==0.5.0
